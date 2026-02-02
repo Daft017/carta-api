@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cotas Contempladas - Consulta de Disponibilidade</title>
+    <style>
+        /* ===== RESET E VARIÁVEIS ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #2563eb;
+            --primary-dark: #1e40af;
+            --success-color: #10b981;
+            --danger-color: #ef4444;
+            --warning-color: #f59e0b;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: var(--gray-800);
+        }
+
+        /* ===== CONTAINER PRINCIPAL ===== */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* ===== HEADER ===== */
+        header {
+            background: white;
+            border-radius: 12px;
+            padding: 40px 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: var(--gray-600);
+            font-size: 1.1em;
+        }
+
+        /* ===== FILTROS ===== */
+        .filters {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid var(--gray-200);
+            border-radius: 8px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--gray-200);
+            color: var(--gray-800);
+        }
+
+        .btn-secondary:hover {
+            background: var(--gray-300);
+        }
+
+        .btn-reload {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .btn-reload:hover {
+            background: #059669;
+        }
+
+        /* ===== STATUS ===== */
+        .status-info {
+            background: var(--gray-100);
+            padding: 15px 20px;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-color);
+            margin-bottom: 20px;
+        }
+
+        .status-info.loading {
+            border-left-color: var(--warning-color);
+        }
+
+        .status-info.error {
+            border-left-color: var(--danger-color);
+            background: #fee2e2;
+        }
+
+        .status-info.success {
+            border-left-color: var(--success-color);
+            background: #ecfdf5;
+        }
+
+        /* ===== GRID DE COTAS ===== */
+        .cotas-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .cota-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            border-top: 4px solid var(--primary-color);
+        }
+
+        .cota-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .cota-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+        }
+
+        .cota-id {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .cota-tipo {
+            display: inline-block;
+            background: var(--gray-100);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            color: var(--gray-600);
+            font-weight: 600;
+        }
+
+        .cota-content {
+            display: grid;
+            gap: 12px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .info-label {
+            color: var(--gray-500);
+            font-size: 0.9em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .info-value {
+            color: var(--gray-800);
+            font-size: 1.1em;
+            font-weight: 600;
+        }
+
+        .info-value.currency {
+            color: var(--success-color);
+            font-family: 'Courier New', monospace;
+        }
+
+        .cota-footer {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 2px solid var(--gray-100);
+        }
+
+        .admin-info {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .admin-badge, .group-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .admin-badge {
+            background: #e0e7ff;
+            color: #3730a3;
+        }
+
+        .group-badge {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .cota-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .btn-interest, .btn-buy {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.85em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-interest {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .btn-interest:hover {
+            background: #fde68a;
+            transform: translateY(-1px);
+        }
+
+        .btn-buy {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-buy:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        /* ===== ESTADOS ===== */
+        .empty-state {
+            background: white;
+            border-radius: 12px;
+            padding: 60px 40px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .empty-state-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+
+        .empty-state h2 {
+            color: var(--gray-700);
+            margin-bottom: 10px;
+        }
+
+        .empty-state p {
+            color: var(--gray-500);
+            margin-bottom: 20px;
+        }
+
+        /* ===== LOADING SPINNER ===== */
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid var(--gray-200);
+            border-top-color: var(--primary-color);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            vertical-align: middle;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ===== FOOTER ===== */
+        footer {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            color: var(--gray-600);
+            font-size: 0.9em;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            margin-top: 40px;
+        }
+
+        /* ===== RESPONSIVO ===== */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .filter-group {
+                flex-direction: column;
+            }
+
+            .search-box {
+                min-width: auto;
+            }
+
+            .btn-group {
+                width: 100%;
+                flex-direction: column;
+            }
+
+            button {
+                width: 100%;
+            }
+
+            .cotas-grid {
+                grid-template-columns: 1fr;
+            }
+
+            header {
+                padding: 30px 20px;
+            }
+
+            .cota-card {
+                padding: 20px;
+            }
+        }
+
+        /* ===== TOOLTIP ===== */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: help;
+            border-bottom: 1px dotted var(--primary-color);
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 220px;
+            background-color: var(--gray-800);
+            color: white;
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -110px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.85em;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- HEADER -->
+        <header>
+            <h1>🏠 Cotas Contempladas</h1>
+            <p class="subtitle">Consulte as cotas disponíveis em tempo real</p>
+        </header>
+
+        <!-- FILTROS E CONTROLES -->
+        <div class="filters">
+            <div class="filter-group">
+                <div class="search-box">
+                    <input 
+                        type="text" 
+                        id="searchInput" 
+                        placeholder="🔍 Buscar por ID, tipo, administradora, grupo..."
+                    >
+                </div>
+                <div class="btn-group">
+                    <button class="btn-primary" onclick="filtrarCotas()">Buscar</button>
+                    <button class="btn-secondary" onclick="limparFiltros()">Limpar</button>
+                    <button class="btn-reload" onclick="recarregarDados()">↻ Recarregar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- STATUS/INFORMAÇÕES -->
+        <div id="statusDiv" class="status-info" style="display: none;">
+            <span id="statusText"></span>
+        </div>
+
+        <!-- LISTAGEM DE COTAS -->
+        <div id="cotasContainer" class="cotas-grid"></div>
+
+        <!-- ESTADO VAZIO -->
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <div class="empty-state-icon">📭</div>
+            <h2>Nenhuma cota encontrada</h2>
+            <p id="emptyStateText">Tente alterar os critérios de busca ou recarregue os dados.</p>
+        </div>
+
+        <!-- FOOTER -->
+        <footer>
+            <p>💾 API: <span id="apiStatus">Conectando...</span> | 📊 Cache: <span id="cacheInfo">--</span> | ⏰ Atualizado em: <span id="timestamp">--</span></p>
+        </footer>
+    </div>
+
+    <script>
+        // ===== CONFIGURAÇÃO =====
+        const API_BASE_URL = 'http://localhost:8000';
+        let cotasGlobal = [];
+
+        // ===== INICIALIZAÇÃO =====
+        document.addEventListener('DOMContentLoaded', function() {
+            carregarCotas();
+            
+            // Auto-reload a cada 60 segundos (sincronizar com cache do backend)
+            setInterval(carregarCotas, 60000);
+            
+            // Busca em tempo real
+            document.getElementById('searchInput').addEventListener('keyup', filtrarCotas);
+        });
+
+        // ===== FUNÇÕES PRINCIPAIS =====
+
+        /**
+         * Carrega as cotas da API
+         */
+        async function carregarCotas() {
+            try {
+                mostrarStatus('Carregando cotas...', 'loading');
+                
+                const response = await fetch(`${API_BASE_URL}/cotas`);
+                
+                if (!response.ok) {
+                    throw new Error(`Erro na API: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                cotasGlobal = data.cotas;
+                
+                atualizarStatus(data.timestamp);
+                renderizarCotas(cotasGlobal);
+                mostrarStatus(`✅ ${data.total} cotas carregadas com sucesso`, 'success');
+                
+            } catch (erro) {
+                console.error('Erro ao carregar cotas:', erro);
+                mostrarStatus(`❌ Erro ao conectar com API: ${erro.message}`, 'error');
+                document.getElementById('cotasContainer').innerHTML = '';
+                mostrarEmptyState('Não foi possível conectar com a API. Verifique se o backend está rodando em http://localhost:8000');
+            }
+        }
+
+        /**
+         * Filtra cotas baseado na busca
+         */
+        function filtrarCotas() {
+            const termo = document.getElementById('searchInput').value.toLowerCase().trim();
+            
+            if (!termo) {
+                renderizarCotas(cotasGlobal);
+                return;
+            }
+            
+            const cotasFiltradas = cotasGlobal.filter(cota => {
+                const textoCompleto = `
+                    ${cota.id}
+                    ${cota.tipo}
+                    ${cota.administradora}
+                    ${cota.grupo}
+                `.toLowerCase();
+                
+                return textoCompleto.includes(termo);
+            });
+            
+            renderizarCotas(cotasFiltradas);
+        }
+
+        /**
+         * Limpa os filtros
+         */
+        function limparFiltros() {
+            document.getElementById('searchInput').value = '';
+            renderizarCotas(cotasGlobal);
+        }
+
+        /**
+         * Recarrega os dados forçando renovação do cache
+         */
+        async function recarregarDados() {
+            try {
+                mostrarStatus('Recarregando dados...', 'loading');
+                
+                const response = await fetch(`${API_BASE_URL}/reload-cache`, { method: 'POST' });
+                
+                if (!response.ok) {
+                    throw new Error(`Erro ao recarregar: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                mostrarStatus(`✅ Cache recarregado: ${data.total_cotas} cotas`, 'success');
+                
+                // Recarregar lista
+                await carregarCotas();
+                
+            } catch (erro) {
+                console.error('Erro ao recarregar:', erro);
+                mostrarStatus(`❌ Erro ao recarregar: ${erro.message}`, 'error');
+            }
+        }
+
+        /**
+         * Renderiza as cotas na tela
+         */
+        function renderizarCotas(cotas) {
+            const container = document.getElementById('cotasContainer');
+            const emptyState = document.getElementById('emptyState');
+            
+            if (!cotas || cotas.length === 0) {
+                container.innerHTML = '';
+                mostrarEmptyState('Nenhuma cota disponível com este filtro.');
+                return;
+            }
+            
+            emptyState.style.display = 'none';
+            
+            container.innerHTML = cotas.map(cota => `
+                <div class="cota-card">
+                    <div class="cota-header">
+                        <div class="cota-id">${cota.id}</div>
+                        <span class="cota-tipo">${cota.tipo}</span>
+                    </div>
+                    
+                    <div class="cota-content">
+                        <div class="info-row">
+                            <span class="info-label">Crédito</span>
+                            <span class="info-value currency">R$ ${formatarMoeda(cota.credito)}</span>
+                        </div>
+                        
+                        <div class="info-row">
+                            <span class="info-label">Entrada</span>
+                            <span class="info-value currency">R$ ${formatarMoeda(cota.entrada)}</span>
+                        </div>
+                        
+                        <div class="info-row">
+                            <span class="info-label">Parcelas</span>
+                            <span class="info-value">${cota.parcela}x</span>
+                        </div>
+                        
+                        <div class="info-row">
+                            <span class="info-label">Status</span>
+                            <span class="info-value" style="color: var(--success-color);">✓ ${cota.status}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="cota-footer">
+                        <div class="admin-info">
+                            <span class="admin-badge">${cota.administradora}</span>
+                            <span class="group-badge">${cota.grupo}</span>
+                        </div>
+                        <div class="cota-actions">
+                            <button class="btn-interest" onclick="registrarInteresse('${cota.id}')">💡 Interesse</button>
+                            <button class="btn-buy" onclick="registrarCompra('${cota.id}')">🛒 Comprar</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        /**
+         * Mostra o estado vazio
+         */
+        function mostrarEmptyState(mensagem) {
+            const emptyState = document.getElementById('emptyState');
+            document.getElementById('emptyStateText').textContent = mensagem;
+            emptyState.style.display = 'block';
+        }
+
+        /**
+         * Mostra/atualiza o status
+         */
+        function mostrarStatus(mensagem, tipo = 'info') {
+            const statusDiv = document.getElementById('statusDiv');
+            const statusText = document.getElementById('statusText');
+            
+            statusText.textContent = mensagem;
+            statusDiv.className = `status-info ${tipo}`;
+            statusDiv.style.display = 'block';
+            
+            // Auto-hide após 5 segundos se for sucesso
+            if (tipo === 'success') {
+                setTimeout(() => {
+                    statusDiv.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        /**
+         * Atualiza informações de status na footer
+         */
+        async function atualizarStatus(timestamp) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/status`);
+                const data = await response.json();
+                
+                document.getElementById('apiStatus').textContent = '🟢 Online';
+                
+                const cacheInfo = data.cache.ativo 
+                    ? `✓ Válido (${data.cache.tempo_restante_segundos}s)` 
+                    : `✗ Expirado`;
+                document.getElementById('cacheInfo').textContent = cacheInfo;
+                
+                document.getElementById('timestamp').textContent = 
+                    new Date(timestamp).toLocaleString('pt-BR');
+                    
+            } catch (erro) {
+                document.getElementById('apiStatus').textContent = '🔴 Offline';
+            }
+        }
+
+        /**
+         * Formata números como moeda (pt-BR)
+         */
+        function formatarMoeda(valor) {
+            return valor.toLocaleString('pt-BR', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+
+        /**
+         * Registra interesse em uma cota
+         */
+        function registrarInteresse(cotaId) {
+            alert(`✅ Interesse registrado na cota ${cotaId}!\n\nEm breve entraremos em contato para mais detalhes.`);
+            // Aqui poderia enviar para um CRM ou email
+            console.log(`Lead: Interesse na cota ${cotaId}`);
+        }
+
+        /**
+         * Registra intenção de compra de uma cota
+         */
+        function registrarCompra(cotaId) {
+            alert(`🛒 Intenção de compra registrada na cota ${cotaId}!\n\nEm breve nossa equipe entrará em contato para finalizar a negociação.`);
+            // Aqui poderia enviar para um CRM ou email
+            console.log(`Lead: Compra na cota ${cotaId}`);
+        }
+    </script>
+</body>
+</html>

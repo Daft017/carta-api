@@ -1,0 +1,328 @@
+╔════════════════════════════════════════════════════════════════════════════╗
+║                  🏠 CARTA CONTEMPLADA API - PROJETO COMPLETO 🏠             ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+📁 ESTRUTURA DO PROJETO
+═══════════════════════════════════════════════════════════════════════════
+
+Carta contemplada API/
+│
+├── 📄 README.md                    ← COMECE AQUI! (Guia completo)
+├── 📄 TECNICO.md                   ← Documentação técnica profunda
+├── 📄 CHECKLIST.md                 ← Checklist de implementação
+├── 📄 ESTE_ARQUIVO.txt             ← Overview do projeto
+├── .gitignore                      ← Git ignore
+│
+├── 🔧 backend/                     ← Python + FastAPI
+│   ├── main.py                     ← API REST (núcleo)
+│   ├── criar_exemplo_cotas.py      ← Gera dados de teste
+│   └── requirements.txt            ← Dependências (pip install)
+│
+├── 🎨 frontend/                    ← HTML + CSS + JavaScript
+│   └── index.html                  ← Site completo (1 arquivo)
+│
+├── 📊 dados/                       ← Planilha (CMS do sistema)
+│   └── cotas_exemplo.csv           ← Exemplo de dados
+│
+└── ⚡ guia_rapido.py              ← Menu interativo
+
+
+🚀 QUICK START (3 PASSOS)
+═══════════════════════════════════════════════════════════════════════════
+
+1️⃣  Abra Terminal / PowerShell e vá até a pasta do projeto:
+    cd "c:\Users\gdepa\Desktop\programas\Carta contemplada API"
+
+2️⃣  Instale dependências:
+    cd backend
+    pip install -r requirements.txt
+    python criar_exemplo_cotas.py     (← Gera dados de teste)
+
+3️⃣  Inicie o backend:
+    python main.py
+
+    Você verá:
+    📍 API rodando em: http://localhost:8000
+    📚 Documentação: http://localhost:8000/docs
+
+4️⃣  Abra o site no navegador:
+    Arquivo: frontend/index.html (abra direto no navegador)
+    Ou: python -m http.server 8080 (em frontend/)
+    Depois: http://localhost:8080
+
+
+🎯 TECNOLOGIAS UTILIZADAS
+═══════════════════════════════════════════════════════════════════════════
+
+BACKEND                          FRONTEND
+──────────────────────────────   ──────────────────────────────
+✅ Python 3.9+                   ✅ HTML 5
+✅ FastAPI (modern framework)    ✅ CSS 3 (Grid, Flexbox)
+✅ Uvicorn (ASGI server)        ✅ JavaScript puro (Fetch API)
+✅ Pandas (Excel/CSV reading)    ✅ Sem frameworks (zero deps)
+✅ Pydantic (data validation)    
+✅ CORS middleware               
+
+
+📊 COMO FUNCIONA
+═══════════════════════════════════════════════════════════════════════════
+
+Fluxo de Dados:
+
+┌─────────────────────────────────────────────────────────────────┐
+│                    PLANILHA (Excel/CSV)                         │
+│           Única fonte de dados - Seu "CMS"                      │
+│    Colunas: id, tipo, credito, parcela, entrada,               │
+│             status, administradora, grupo                       │
+└──────────────────────────┬──────────────────────────────────────┘
+                           │
+                    Backend lê (pandas)
+                           ↓
+┌──────────────────────────────────────────────────────────────────┐
+│                   API REST (FastAPI)                             │
+│    GET /cotas          → Lista cotas disponíveis                │
+│    GET /cotas?status=vendida → Cotas vendidas                  │
+│    POST /reload-cache  → Força recarregamento                  │
+│    GET /status         → Info do cache                          │
+│    GET /docs           → Documentação Swagger                   │
+└──────────────────────────┬───────────────────────────────────────┘
+                           │
+                    Frontend fetch
+                           ↓
+┌──────────────────────────────────────────────────────────────────┐
+│              SITE NO NAVEGADOR (HTML/CSS/JS)                     │
+│    Renderiza cotas dinamicamente                                │
+│    Busca em tempo real                                          │
+│    Auto-reload a cada 60 segundos                               │
+└──────────────────────────────────────────────────────────────────┘
+
+
+🔌 ENDPOINTS DA API
+═══════════════════════════════════════════════════════════════════════════
+
+GET /cotas
+  └─ Retorna cotas com status = "disponivel"
+  └─ Exemplo: http://localhost:8000/cotas
+  └─ Resposta: { "total": 6, "cotas": [...], "timestamp": "..." }
+
+GET /cotas?status=vendida
+  └─ Retorna apenas cotas vendidas
+  └─ Útil para mostrar histórico
+
+GET /cotas/{id}
+  └─ Detalhe de uma cota específica
+  └─ Exemplo: http://localhost:8000/cotas/COT001
+
+POST /reload-cache
+  └─ Força releitura da planilha (sem aguardar 60s)
+  └─ Use quando editar a planilha
+
+GET /status
+  └─ Status da API e informações de cache
+
+GET /docs
+  └─ Documentação Swagger interativa (teste endpoints!)
+
+GET /
+  └─ Informações gerais da API
+
+
+📋 MODELO DE DADOS (Planilha)
+═══════════════════════════════════════════════════════════════════════════
+
+Seu arquivo Excel/CSV deve ter essas colunas (exatas):
+
+┌────┬────────┬─────────┬─────────┬─────────┬─────────┬────────────────┬──────────┐
+│ id │  tipo  │ credito │ parcela │ entrada │ status  │ administradora │  grupo   │
+├────┼────────┼─────────┼─────────┼─────────┼─────────┼────────────────┼──────────┤
+│COT │Imóvel  │250000   │120      │25000    │disponí │ABC Imóveis     │Grupo A   │
+│001 │        │         │         │         │vel     │                │          │
+├────┼────────┼─────────┼─────────┼─────────┼─────────┼────────────────┼──────────┤
+│COT │Imóvel  │300000   │180      │30000    │vendida │XYZ Crédito     │Grupo B   │
+│002 │        │         │         │         │        │                │          │
+└────┴────────┴─────────┴─────────┴─────────┴─────────┴────────────────┴──────────┘
+
+Regras:
+  ✅ Nomes de coluna em minúsculas (id, não ID)
+  ✅ Status: "disponivel" ou "vendida" (case-insensitive)
+  ✅ Números: usar . ou , como decimal
+  ✅ Cotas "vendida" não aparecem no site
+  ✅ ID é obrigatório
+
+
+🔄 CICLO DE USO
+═══════════════════════════════════════════════════════════════════════════
+
+Para ADICIONAR uma cota:
+  1. Abra dados/cotas.xlsx
+  2. Adicione nova linha com os dados
+  3. Salve o arquivo
+  4. No site, clique "↻ Recarregar" (ou aguarde 60s)
+  5. Nova cota aparece!
+
+Para REMOVER uma cota:
+  1. Abra dados/cotas.xlsx
+  2. Delete a linha da cota
+  3. Salve o arquivo
+  4. Clique "↻ Recarregar"
+  5. Cota some do site!
+
+Para EDITAR uma cota:
+  1. Abra dados/cotas.xlsx
+  2. Mude o valor desejado
+  3. Salve o arquivo
+  4. Clique "↻ Recarregar"
+  5. Novo valor aparece!
+
+Para MARCAR COMO VENDIDA:
+  1. Abra dados/cotas.xlsx
+  2. Mude "status" de "disponivel" para "vendida"
+  3. Salve o arquivo
+  4. Clique "↻ Recarregar"
+  5. Cota desaparece (vendidas não aparecem por padrão)
+
+
+⚙️ CONFIGURAÇÃO
+═══════════════════════════════════════════════════════════════════════════
+
+Para mudar a duração do cache (padrão 60 segundos):
+  
+  Abra backend/main.py
+  Procure por: CACHE_DURATION_SECONDS = 60
+  Mude para: CACHE_DURATION_SECONDS = 120  (2 minutos, por exemplo)
+  
+Para usar CSV em vez de Excel:
+  
+  Abra backend/main.py
+  Procure por: ARQUIVO_PLANILHA = DADOS_DIR / "cotas.xlsx"
+  Mude para: ARQUIVO_PLANILHA = DADOS_DIR / "cotas.csv"
+
+
+🐛 TROUBLESHOOTING
+═══════════════════════════════════════════════════════════════════════════
+
+❌ "Planilha não encontrada"
+  ✅ Execute: python criar_exemplo_cotas.py
+
+❌ "Colunas obrigatórias faltando"
+  ✅ Verifique se sua planilha tem exatamente: id, tipo, credito, 
+     parcela, entrada, status, administradora, grupo
+
+❌ "Conexão recusada" no site
+  ✅ Verifique se backend está rodando (python main.py)
+  ✅ Acesse http://localhost:8000/status
+
+❌ "CORS error"
+  ✅ Abra frontend/index.html direto (não via servidor externo)
+  ✅ Ou use: python -m http.server 8080
+
+❌ Mudei a planilha mas o site não atualizou
+  ✅ Clique "↻ Recarregar" no site
+  ✅ Ou aguarde 60 segundos (cache expire)
+
+
+📚 DOCUMENTAÇÃO COMPLETA
+═══════════════════════════════════════════════════════════════════════════
+
+Este arquivo (Sumário):
+  → Visão geral e quick start
+
+README.md:
+  → Guia completo com todos os detalhes
+  → Como instalar, rodar, usar endpoints
+  → Deploy em produção
+  → Exemplos de uso
+
+TECNICO.md:
+  → Arquitetura detalhada
+  → Fluxo de dados
+  → Performance e benchmarks
+  → Extensões e customizações
+  → Troubleshooting técnico
+
+CHECKLIST.md:
+  → O que foi implementado
+  → Status de cada funcionalidade
+  → Requisitos atendidos
+
+
+🎓 APRENDIZADO E EXTENSÃO
+═══════════════════════════════════════════════════════════════════════════
+
+Este projeto é um excelente ponto de partida para aprender:
+  ✅ FastAPI (framework moderno)
+  ✅ REST API design
+  ✅ Cache em aplicações
+  ✅ Validação de dados
+  ✅ Fetch API (JavaScript)
+  ✅ Integração frontend-backend
+
+Para evoluir para produção:
+  ✅ Adicionar autenticação
+  ✅ Banco de dados (PostgreSQL)
+  ✅ WebSocket (real-time)
+  ✅ Tests (pytest)
+  ✅ Docker
+  ✅ CI/CD (GitHub Actions)
+
+
+🚀 DEPLOY EM PRODUÇÃO
+═══════════════════════════════════════════════════════════════════════════
+
+Opções gratuitas/baratas:
+
+1. Heroku (grátis com limitações)
+   - Copie arquivo Procfile para raiz
+   - git push heroku main
+
+2. PythonAnywhere (grátis)
+   - Upload via web console
+   - Configure Web app
+
+3. DigitalOcean ($4-6/mês)
+   - VPS básico + Gunicorn
+
+Veja README.md para instruções completas!
+
+
+💡 DICAS IMPORTANTES
+═══════════════════════════════════════════════════════════════════════════
+
+1. Não feche Excel enquanto backend está rodando
+   → Pode causar "arquivo locked"
+
+2. Use nomes simples na planilha
+   → Evita problemas com encoding
+
+3. Backup regular da planilha
+   → Use Git ou sincronização em nuvem
+
+4. Monitore logs do backend
+   → Erros aparecem no console
+
+5. Teste endpoints em /docs
+   → Swagger permite teste interativo
+
+6. Use "↻ Recarregar" após editar planilha
+   → Força invalidação do cache
+
+
+📞 CONTATO / SUPORTE
+═══════════════════════════════════════════════════════════════════════════
+
+Dúvidas? Consulte:
+  1. README.md (guia principal)
+  2. TECNICO.md (detalhes técnicos)
+  3. Logs do console (mensagens de erro)
+  4. FastAPI docs: /docs (teste endpoints)
+  5. Swagger UI: http://localhost:8000/docs
+
+
+════════════════════════════════════════════════════════════════════════════
+
+✅ PROJETO PRONTO PARA USAR E EVOLUIR!
+
+Desenvolvido com ❤️ como MVP production-ready
+Versão: 1.0.0 | Data: 29/01/2025 | Status: ✅ Completo
+
+════════════════════════════════════════════════════════════════════════════
